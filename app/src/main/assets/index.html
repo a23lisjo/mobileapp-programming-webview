@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="sv">
+ 
+<head>
+    <title>Årstiderna med Lo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="all_css.css">
+    <link rel="stylesheet" href="biggestscreen.css">
+    <link rel="stylesheet" href="bigscreen.css">
+    <link rel="stylesheet" href="mediumscreen.css">
+    <link rel="stylesheet" href="smalscreen.css">
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+    <script src="https://raw.githack.com/HGustavs/Shaker.js/master/shaker.js"></script> 
+    <script>
+        /* ----- Javascript for SPA - Single Page Application logic ----- */
+        // Help function that shows page with id page+p and hides all other pages
+        function showPage(p) {
+            // Step 1 - Hide all pages
+            pageArr = document.getElementsByClassName("page");
+            for (let i = 0; i < pageArr.length; i++) {
+                let page = pageArr[i];
+                page.style.display = "none";
+            }
+            // Step 2 - Show the selected page
+            document.getElementById("page" + p).style.display = "grid";
+ 
+            // Step 3 - Make all navbar buttons inactive 
+            let btnArr = document.getElementsByClassName("navbar__btn");
+            for (let i = 0; i < btnArr.length; i++) {
+                let btn = btnArr[i];
+                btn.classList.remove("navbar__btn--active");
+            }
+ 
+            // Step 4 - Make page all navbar buttons with class nav+p active
+            btnArr = document.getElementsByClassName("nav" + p);
+            for (let i = 0; i < btnArr.length; i++) {
+                let btn = btnArr[i];
+                btn.classList.add("navbar__btn--active");
+            }
+        }
+        /* -----  ----- */
+ 
+        // Init function. Here we can put code that is needed to initialize our prototype.
+        function initPrototype() {
+            // For example, when using sound or sensors this becomes important.
+            console.log("==> Prototype init started.");
+ 
+            // Show the landingpage/startpage
+            showPage(1);
+        }
+
+        //SWIPE
+
+        var numberOfSwipePages;
+        var swipePage = 1;
+        
+        function showSwipePageRight(newSwipePage) {
+        document.getElementById('swipe-page' + swipePage).style.animation = "outright 1s ease-in-out 0s 1 forwards";
+        document.getElementById('swipe-page' + newSwipePage).style.animation = "inleft 1s ease-in-out 0s 1 forwards";
+        swipePage = newSwipePage;
+        }
+        function showSwipePageLeft(newSwipePage) {
+        document.getElementById('swipe-page' + swipePage).style.animation = "outleft 1s ease-in-out 0s 1 forwards";
+        document.getElementById('swipe-page' + newSwipePage).style.animation = "inright 1s ease-in-out 0s 1 forwards";
+        swipePage = newSwipePage;
+        }
+    
+        function swipe(direction) {
+            var newSwipePage = swipePage + direction;
+        
+            // if we swipe beyond the first page, we go to last page instead.
+            if (newSwipePage == 0) {
+                newSwipePage = numberOfSwipePages;
+            }
+            // if we swipe beyond the last page, we go to first page instead.
+            else if (newSwipePage > numberOfSwipePages) {
+                newSwipePage = 1;
+            }
+        
+            if (direction == 1) {
+                showSwipePageLeft(newSwipePage);
+            }
+            else {
+                showSwipePageRight(newSwipePage);
+            }
+        }
+
+       
+
+
+        /*SCRIPT FOR GAME*/
+        function step() {
+            var loBack = document.getElementById ("loBack");
+            var apple = document.getElementById ("apple");
+
+               loBack.classList.add("animation");
+
+            setTimeout(function () {
+                loBack.classList.remove("animation");
+            }, 1200);
+        }
+
+        var checkDead = setInterval(function() {
+            let loTop = parseInt(window.getComputedStyle(loBack).getPropertyValue("top"));
+            let appleLeft = parseInt(window.getComputedStyle(apple).getPropertyValue("left"));
+            if(appleLeft<50 && appleLeft>-50 && loTop>=100){
+                apple.style.animation = "none";
+                alert("Game Over!")
+                apple.style.animation = "block 1s infinite linear";
+            }
+        },10)
+
+        shaker.on("step", function (o) {
+            step();
+        });
+
+        
+
+        function initHammer() {
+            numberOfSwipePages = document.getElementsByClassName('swipe-page').length;
+            var element = document.getElementById("swipecontainer");
+            var hammertime = Hammer(element);
+            hammertime.on("swiperight", function (event) { swipe(-1) });
+            hammertime.on("swipeleft", function (event) { swipe(1) });
+
+        }
+
+        function initShaker() {
+            showPage(0);
+            step();
+            initHammer()
+        }
+
+    </script>
+</head>
+ 
+<body onload="initShaker()">
+    <!-- Page0 is needed for initPrototype() function. DON'T REMOVE! -->
+    <!-- Page0 is needed for initPrototype() function. DON'T REMOVE! -->
+    <div id="page0" class="page">
+        <div class="prototype-start-page">
+            <button type="button" onclick="initPrototype();">Start prototype</button>
+        </div>
+    </div>
+    <!-- Page0 is needed for initPrototype() function. DON'T REMOVE! -->
+    <!-- Page0 is needed for initPrototype() function. DON'T REMOVE! -->
+ 
+    <!-- alla sidor -->
+    <!-- Nya sidor måste ha klassen 'page' och ett id 'pageX', där X måste vara ett unikt sidnummer i html-dokumentet, 
+         och ha HTML-strukturen:
+ 
+        <div id="pageX" class="page">
+            Nya sidans HTML-innehåll. Glöm inte att ta med menyn.
+        </div>
+ 
+        I detta exempel har vi tre sidor för app-prototypen, page1, page2 och page3, så en naturlig nästa sida vore page4:
+ 
+        <div id="page4" class="page">
+            Nya sidans HTML-innehåll. Glöm inte att ta med menyn och lägga till ett 4e menyalternativ hos menyerna på samtliga sidor.
+        </div>
+ 
+        För att javascriptet som sköter sidnavigeringen skall fungera krävas att meny-knapparna har klasserna 
+        'navbar__btn' och 'navX', där X är nummret för sidan som meny-knappen öppnar. Vi måste också ange nummret 
+        på sidan som skall öppnas av meny-knappen genom att använda '4' som parameter till funktionen 'showPage();'
+ 
+        T ex, för att lägga till en meny-knapp för 'page4' så skulle vi skapa följande knapp:
+        <button class="nav4 navbar__btn navbar__btn--primary" type="button" onclick="showPage(4);">Go to page 4</button>
+ 
+        Klassen navbar__btn--active innehåller stylingen för det menyalternativ som är aktivt.
+    -->
+    <div id="page1" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                     <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            </nav>
+        
+
+        <!-- page content -->
+        <h1 class="title">Hem</h1>
+        <div class="content">
+            <h2>Välkommen!</h2>
+        
+            <p>Hej! Jag heter Lo och jag älskar årstiderna! Det är så mysigt och häftigt att se hur årstiderna förändrar både natur och djur.
+            </p>
+
+
+            <?xml version="1.0" encoding="UTF-8"?>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -15 100 190" class="allLo">
+                <g id="waveArm">
+                    <path class="cls-4" d="M21.92,70.21l-8.21,10.73c-2.2,3.05-4.08,6.01-5.93,9.21-1.98,3.44-4.21,8.04-5.41,10.91-2.17,5.21-1.9,8.37-1.82,9.34s.55,3.97,2.67,3.79c.94-.08,1.79-.58,2.45-1.11.84-.68,1.42-1.61,1.72-2.65l3.08-10.9s1.8-9.74,6.95-19.23,4.24-9.66,4.24-9.66"/>
+                  </g>
+                  <g id="Body">
+                    <path class="cls-4" d="M9.02,107.62s-.62,6.54-.54,11.88,2.88,13.62,2.88,13.62l2.21,8.89s.96,3.03,2.33,8.63,1.93,5.92,1.22,10.54-5.76,4.88-5.01,7.11,5.62,2.82,7.46,2.83,5.51.16,9.72-.83,4.69-.96,5.24-2.5-.12-33.54-.29-35.12.08-2.71,1.42-3.04,2.42-.12,3.08.25.75,1.71.79,4.29c.04,2.26.55,22.36.68,27.34.02.87.12,1.75.32,2.6.31,1.34.87,3.21,1.71,4.02,2.5,2.39,11.42,3.29,12.92,3.17s4.54.21,8.38-2.17-5-5.13-4.71-8.17,1.58-34.96,1.58-34.96l-.46-18.75s-1.08-7.04-2.12-10.75-11.5-22.95-11.5-22.95c0,0-2.63-1-4.86-.18s-1.66,1.34-6.5,2.11-9.5-.78-10.17-1.03-5.47.04-5.72-.54-3.15,6.41-3.15,6.41l-4,11.2-2.23,10.43-.67,5.67Z"/>
+                    <path class="cls-4" d="M46.86,73.15l7.37,9.14c1.74,2.31,3.03,4.3,4.4,6.62l3.42,6.33c.98,1.81,1.83,3.68,2.56,5.6l1.59,3.55,1.95,5.8c.54,1.42.81,2.93.81,4.45v1.71c0,2.28-2.2,3.99-4.38,3.3-.03,0-.06-.02-.09-.03-3.19-1.08-4.36-4.78-4.36-4.78l-.87-9.07c-.35-3.67-1.32-7.25-2.86-10.6l-9.36-20.29-.18-1.34"/>
+                    <path class="cls-4" d="M25.74,76.94c-3.08-.85-5.91-2.3-8.36-4.21-5.59-4.38-9.19-11.19-9.19-18.85,0-13.21,10.71-23.92,23.92-23.92s23.92,10.71,23.92,23.92c0,10.81-7.17,19.95-17.02,22.91"/>
+                  </g>
+                  <g id="eyes">
+                    <ellipse class="cls-2" cx="23.9" cy="56.54" rx="2.08" ry="4.33"/>
+                    <ellipse class="cls-2" cx="39.81" cy="56.54" rx="2.08" ry="4.33"/>
+                  </g>
+                  <g id="flower">
+                    <path class="cls-3" d="M31.96,30.19s2.08-5.36.66-9.25-4.19-4.39-4.19-4.39c0,0-2.31-.67-4.08.61-.64.46-1.09,1.08-1.31,1.87-.67,2.43.48,5.04,2.66,6.3.23.13.47.25.73.36,2.33.97,4.13.17,5.39-1.19s2.61-3.64,2.61-6.36c0-1-.2-2.62-1-4.28-.67-1.39-2.58-3.22-3.58-3.78-1.67-.92-4.08-.86-4.22-.92"/>
+                    <ellipse class="cls-1" cx="19.77" cy="4.09" rx="2.14" ry="3.88" transform="translate(-.4 3.28) rotate(-9.38)"/>
+                    <ellipse class="cls-1" cx="16.49" cy="6.81" rx="2.1" ry="3.18" transform="translate(6.09 21.31) rotate(-76.8)"/>
+                    <ellipse class="cls-1" cx="17.32" cy="11.13" rx="3.87" ry="2.14" transform="translate(-2.8 15.51) rotate(-45)"/>
+                    <path class="cls-1" d="M23.07,12.68c0,2.14-.96,3.88-2.14,3.88s-2.14-1.73-2.14-3.87.96-3.88,2.14-3.88,2.14,1.73,2.14,3.87Z"/>
+                    <ellipse class="cls-1" cx="23.43" cy="6.4" rx="3.87" ry="2.14" transform="translate(3.15 19.78) rotate(-48.7)"/>
+                    <ellipse class="cls-1" cx="23.81" cy="9.51" rx="1.7" ry="2.85" transform="translate(5.44 27.39) rotate(-66)"/>
+                    <ellipse class="cls-5" cx="20.6" cy="8.65" rx="1.61" ry="2.32"/>
+                  </g>
+            </svg>
+
+            <p>
+                Våren är min favoritårstid, då blir det ljusare, varmare, all is smälter och alla djur vaknar upp
+                från sin långa vinter sömn. Efter våren tycker jag mest om hösten, efter den varma sommaren
+                är det skönt när det blir kallt och det blir så fint när alla löven ändrar färg! 
+            </p>
+
+            <p>
+                Vilken är din favorit årstid?
+            </p>
+        </div>
+
+    </div>
+ 
+    <div id="page2" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            </nav>
+             
+        <!-- page content -->
+        <h1 class="title">Vår</h1>
+        <div class="content">
+
+            <div id="swipecontainer" style="position: relative;">
+                <div id="innercontainer" style="overflow:hidden;">
+                    <div id="pageclicker" class="clicker">
+                        <div class="leftclicker" onclick="swipe(-1)"><</div>
+                        <div class="rightclicker" onclick="swipe(1)">></div>
+                    </div>
+         
+                    <div id="swipe-page1" class="swipe-page">
+                        <h1>Träden knoppar</h1>
+                       <img src="bilder/vår/IMG_0641.jpg" alt="rosa blad på träd" class="swipe-img">
+                    </div>
+                    <div id="swipe-page2" class="swipe-page">
+                        <h1>Fågel</h1>
+                      <img src="bilder/vår/IMG_0843.jpg" alt="fågel flyger" class="swipe-img">
+                    </div>
+                    <div id="swipe-page3" class="swipe-page">
+                        <h1>Ekorre</h1>
+                       <img src="bilder/vår/IMG_1262.jpg" alt=" ekorre i träd" class="swipe-img">
+                    </div>
+                    <div id="swipe-page4" class="swipe-page">
+                        <h1>Rådjur</h1>
+                       <img src="bilder/vår/IMG_1409.jpg" alt="rådjur" class="swipe-img">
+                    </div>
+                    <div id="swipe-page5" class="swipe-page">
+                        <h1>Vårblomman vit Påsklilja</h1>
+                       <img src="bilder/vår/IMG_0903.jpg" alt=" vit påsklilja" class="swipe-img">
+                    </div>
+                </div>
+            </div>
+
+            <p>Här kan du läsa om min favoritårstid, våren. Och varför det är det ska jag nu berätta.
+                Under våren smälter all snö och is och djuren börjar vakna till igen! Fåglarna som har rest söder ut 
+                börjar nu komma tillbaka och tänka sig att de kan hitta tillbaka! Dagarna blir också längre så jag hinner med mycket mer 
+                lek!
+            </p> 
+            <p>
+                Under våren börjar löven att knoppa, detta är första steget i att de växer mer och blir till ett löv!
+
+            </p>
+        </div>
+        
+    </div>
+ 
+    <div id="page3" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            
+            </nav>
+        
+        <!-- page content -->
+        <h1 class="title">Sommar</h1>
+        <div class="content">
+
+            <div id="swipecontainer" style="position: relative; ;">
+                <div id="innercontainer" style="overflow:hidden;">
+                    <div id="pageclicker" class="clicker">
+                        <div class="leftclicker" onclick="swipe(-1)"><</div>
+                        <div class="rightclicker" onclick="swipe(1)">></div>
+                    </div>
+         
+                    <div id="swipe-page1" class="swipe-page">
+                        <h1>Solrosor</h1>
+                        <img src="bilder/sommar/IMG_5019.jpg" alt="solros" class="swipe-img">
+                    </div>
+                </div>
+            </div>
+
+            <p>Här kan du läsa mer om sommaren!</p>
+            <p> I Sverige är sommaren under månaderna juni, juli och augusti. På sommaren är det varmt och ljust 
+                och man kan göra massa roliga aktiviteter! Som att bada, resa, äta glass eller plocka jordgubbar. </p>
+            <p>
+                Djuren har fått sina ungar och alla löv på buskar och träd är så gröna! Det är vanligt att man firar midsommar under sommaren och 
+                under sommaren är det perfekt att leka mycket ute!
+            </p>
+        </div>
+    </div>
+
+    <div id="page4" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            </nav>
+        
+        <!-- page content -->
+        <h1 class="title">Höst</h1>
+        <div class="content">
+
+            <div id="swipecontainer" style="position: relative; ;">
+                <div id="innercontainer" style="overflow:hidden;">
+                    <div id="pageclicker" class="clicker">
+                        <div class="leftclicker" onclick="swipe(-1)"><</div>
+                        <div class="rightclicker" onclick="swipe(1)">></div>
+                    </div>
+         
+                    <div id="swipe-page1" class="swipe-page">
+                        <h1>Kantareller</h1>
+                       <img src="bilder/höst/IMG_4955.jpg" alt="Kantareller" class="swipe-img">
+                    </div>
+                </div>
+            </div>
+            
+            <p >Nu ska du få lära dig mer om hösten!</p>
+            <p>På hösten blir det mörkare om dagarna och kallare temperatur.
+                Det är nu löven på träden ändrar färg, det som jag tycker är så fint att titta på! 
+                Under hösten kommer de fina löven att ramla ner, men om man samlar ihop alla löv i en 
+                lövhög kan man sedan hoppa i det och det är så roligt!
+            </p>
+            <p>
+                Man ska också passa på att gå ut i skogen, där finns det svamp och bär som man kan plocka!
+            </p>
+            <p>
+                Under hösten förbereder alla djur sig inför vintern, de samlar på sig mat och värmer upp
+                deras bon så de klarar sig under vintern då det är ännu kallare!
+            </p>
+        </div>
+     
+    </div>
+
+    <div id="page5" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>  
+            </nav>
+       
+        <!-- page content -->
+        <h1 class="title">Vinter</h1>
+        <div class="content">
+
+            <div id="swipecontainer" style="position: relative; ;">
+                <div id="innercontainer" style="overflow:hidden;">
+                    <div id="pageclicker" class="clicker">
+                        <div class="leftclicker" onclick="swipe(-1)"><</div>
+                        <div class="rightclicker" onclick="swipe(1)">></div>
+                    </div>
+         
+                    <div id="swipe-page1" class="swipe-page">
+                        <h1>Snötäckta träd</h1>
+                       <img src="bilder/vinter/20240108_094305.jpg" alt="träd" class="swipe-img">
+                    </div>
+                </div>
+            </div>
+
+            <p>Här kan du läsa mer om vinter!</p> 
+            <p>När vintern kommer blir det mycket kallare än vad det är på hösten! Vi får klä oss med mycket 
+                tjockare kläder för att hålla oss varma och jag älskar tjocka strumpor!
+                Nu på året brukar alla löv från alla träd ha ramlat av, men vissa träd och buskar som har barr 
+                istället för löv de är fortfarande klädda!
+            </p>
+            <p>
+                Något många förknippar vinter med är snö! Ingenting slår när man tittar ut genom fönstret en morgon och allting
+                utanför ditt fönster är täckt med vit snö! Det är så roligt att leka i snön, man kan åka pulka ner för stora kullar och 
+                det finns roliga vintersporter som skridskor eller skidor att testa på!
+            </p>
+
+            <p>
+                Efter att man har varit ute i det kalla en hel dag och bara lekt i snön är det så härligt att få komma in i 
+                värmen och få dricka varm choklad!
+            </p>
+            <p>
+                Under vintern går många djur i ide. Alltså de går in i sina bon och lägger sig för att sova och sedna sover de 
+                hela vintern lång. Alla djur går inte i ide, vissa fåglar flyger söder ut för att kunna bo i varmare temperaturer.
+            </p>
+
+            
+        </div>
+     
+    </div>
+
+    <div id="page6" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            
+                
+            </nav>
+        
+
+        <!-- page content -->
+        <h1 class="title">Lek med Lo</h1>
+        <div class="content">
+            <p>
+                Oj då! Alla äpplen faller när det är höst, hjälp mig att undvika äpplen
+                genom att skaka på din mobil eller surfplatta.
+            </p>
+
+            <div id="game">
+                <div id="loBack"></div>
+                <div id="apple"></div>
+            </div>
+       
+        </div>
+
+
+     
+    </div>
+
+    <div id="page7" class="page">
+        <div class="header">
+            <div class="webtitle">
+                <h1>Årstider med Lo</h1>
+            </div>
+            <button type="button" onclick="showPage(1);" class="icon" ><img src="ikon/lo_sitting.svg" alt="lo sitter" class="lo1"></button>
+        </div>
+            <!-- navbar -->
+            <nav class="navbar">
+                <div class="nav-menu">
+                    <button class="nav1 navbar__btn navbar__btn--primary navbar__btn--active" type="button" onclick="showPage(1);">Hem</button>
+                    <button class="nav2 navbar__btn navbar__btn--primary " type="button" onclick="showPage(2);">Vår</button>
+                    <button class="nav3 navbar__btn navbar__btn--primary " type="button" onclick="showPage(3);">Sommar</button>
+                    <button class="nav4 navbar__btn navbar__btn--primary " type="button" onclick="showPage(4);">Höst</button>
+                    <button class="nav5 navbar__btn navbar__btn--primary " type="button" onclick="showPage(5);">Vinter</button>
+                    <button class="nav6 navbar__btn navbar__btn--primary " type="button" onclick="showPage(6);">Lek med Lo</button>
+                    <button class="nav7 navbar__btn navbar__btn--primary " type="button" onclick="showPage(7);">Om Lo</button>
+                </div>
+            
+                
+            </nav>
+        
+        <!-- page content -->
+        <h1 class="title">Om oss</h1>
+        <div class="content"> 
+            Referenser:<br>
+            Vår:<br>
+
+            <ul>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576441106/in/dateposted-public/">Flowers</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53575574137/in/dateposted-public/">Bird</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576883820/in/dateposted-public/">Squirrel</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53575574142/in/dateposted-public/">Deer</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576441101/in/dateposted-public/">Daffodil</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+            </ul> <br><br>
+
+            Sommar: <br>
+            <ul>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576650528/in/dateposted-public/">Sunflowers</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+            </ul> <br><br>
+
+            Höst:<br>
+            <ul>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576881820/in/dateposted-public/">Chanterelle</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+            </ul> <br><br>
+
+            Vinter:<br>
+            <ul>
+                <li>
+                    <a href="https://www.flickr.com/photos/199355463@N04/53576650623/in/dateposted-public/">Winter Trees</a> by <a href="https://www.flickr.com/photos/199355463@N04/">Lisen Johansson</a> used under <a href="https://creativecommons.org/licenses/by-nc/2.0/">CC BY-NC 2.0 DEED
+                        Attribution-NonCommercial 2.0 Generic</a>
+                </li>
+            </ul> <br><br>
+
+            
+        </div>
+     
+    </div>
+</body>
+ 
+</html>

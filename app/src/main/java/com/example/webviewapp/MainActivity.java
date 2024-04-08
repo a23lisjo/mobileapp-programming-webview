@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_internal_web) {
-            Log.d("==>","Will display internal web page");
+            myWebView.loadUrl("file:///android_asset/index.html");
             return true;
         }
 
