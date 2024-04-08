@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -74,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_external_web) {
-            Log.d("==>","Will display external web page");
+            myWebView.setWebViewClient(new WebViewClient());
+            myWebView.loadUrl("https://his.se");
             return true;
         }
 
