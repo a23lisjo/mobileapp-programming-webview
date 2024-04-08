@@ -30,7 +30,7 @@
         android:layout_height="326dp"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="57dp"
-        android:id="@+id/page"
+        android:id="@+id/my_webview"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
